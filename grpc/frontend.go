@@ -11,8 +11,7 @@ import (
 
 	// "github.com/UWNetworksLab/adn-controller/grpc/interceptors/null"
 	"github.com/UWNetworksLab/adn-controller/grpc/interceptors/acl"
-	"github.com/UWNetworksLab/adn-controller/grpc/interceptors/cache"
-	"github.com/UWNetworksLab/adn-controller/grpc/interceptors/mutate"
+	"github.com/UWNetworksLab/adn-controller/grpc/interceptors/rate"
 
 	echo "github.com/UWNetworksLab/adn-controller/grpc/pb"
 )
@@ -29,9 +28,10 @@ func initHandler() (func(writer http.ResponseWriter, request *http.Request), fun
 		grpc.WithInsecure(),
 		grpc.WithChainUnaryInterceptor(
 			// null.NullClient(nullOpts...),
+			rate.RateClient(),
 			acl.ACLClient(aclOpts...),
-			mutate.MutateClient(),
-			cache.CacheClient(),
+			// mutate.MutateClient(),
+			// cache.CacheClient(),
 		),
 	)
 	if err != nil {

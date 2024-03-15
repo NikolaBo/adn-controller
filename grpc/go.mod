@@ -1,6 +1,6 @@
 module github.com/UWNetworksLab/adn-controller/grpc
 
-go 1.18
+go 1.22.1
 
 require (
 	golang.org/x/net v0.7.0
