@@ -4,34 +4,51 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"plugin"
 	"strings"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
 	// "github.com/UWNetworksLab/adn-controller/grpc/interceptors/null"
-	"github.com/UWNetworksLab/adn-controller/grpc/interceptors/acl"
-	"github.com/UWNetworksLab/adn-controller/grpc/interceptors/rate"
 
 	echo "github.com/UWNetworksLab/adn-controller/grpc/pb"
 )
 
-func initHandler() (func(writer http.ResponseWriter, request *http.Request), func()) {
-	var conn *grpc.ClientConn
-	// conn, err := grpc.Dial("echo-server:9000", grpc.WithInsecure())
+type InterceptInit interface {
+	CacheClient() grpc.UnaryClientInterceptor
+}
 
+func initHandler() (func(writer http.ResponseWriter, request *http.Request), func()) {
 	// nullOpts := []null.CallOption{null.WithMessage("Null"),}
-	aclOpts := []acl.CallOption{acl.WithContent("client")}
+	// aclOpts := []acl.CallOption{acl.WithContent("client")}
+
+	interceptorPlugin, err := plugin.Open("/echoserver/interceptors/cache/cache.so")
+	if err != nil {
+		panic("error loading interceptor plugin so")
+	}
+
+	symInterceptInit, err := interceptorPlugin.Lookup("InterceptInit")
+	if err != nil {
+		panic("error locating interceptor in plugin so")
+	}
+
+	var interceptInit InterceptInit
+	interceptInit, ok := symInterceptInit.(InterceptInit)
+	if !ok {
+		panic("error casting interceptInit")
+	}
 
 	conn, err := grpc.Dial(
 		"server:9000",
 		grpc.WithInsecure(),
 		grpc.WithChainUnaryInterceptor(
 			// null.NullClient(nullOpts...),
-			rate.RateClient(),
-			acl.ACLClient(aclOpts...),
+			// rate.RateClient(),
+			// acl.ACLClient(aclOpts...),
 			// mutate.MutateClient(),
 			// cache.CacheClient(),
+			interceptInit.CacheClient(),
 		),
 	)
 	if err != nil {
