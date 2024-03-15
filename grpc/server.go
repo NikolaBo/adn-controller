@@ -9,6 +9,7 @@ import (
 
 	// "github.com/UWNetworksLab/adn-controller/grpc/interceptors/null"
 	// "github.com/UWNetworksLab/adn-controller/grpc/interceptors/acl"
+	"github.com/UWNetworksLab/adn-controller/grpc/interceptors/mutate"
 
 	echo "github.com/UWNetworksLab/adn-controller/grpc/pb"
 	"google.golang.org/grpc"
@@ -38,10 +39,11 @@ func main() {
 	// aclOpts := []acl.CallOption{acl.WithContent("server"),}
 
 	s := grpc.NewServer(
-		// grpc.ChainUnaryInterceptor(
-		// 	null.NullServer(nullOpts...),
-		// 	acl.ACLServer(aclOpts...),
-		// ),
+		grpc.ChainUnaryInterceptor(
+			mutate.MutateServer(),
+		// null.NullServer(nullOpts...),
+		// acl.ACLServer(aclOpts...),
+		),
 	)
 	fmt.Printf("Starting server pod at port 9000\n")
 
