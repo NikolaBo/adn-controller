@@ -7,16 +7,17 @@ import (
 
 	"golang.org/x/net/context"
 
-	// "github.com/UWNetworksLab/adn-controller/grpc/interceptors/null"
-	// "github.com/UWNetworksLab/adn-controller/grpc/interceptors/acl"
-	"github.com/UWNetworksLab/adn-controller/grpc/interceptors/mutate"
-
+	"github.com/UWNetworksLab/adn-controller/grpc/interceptorloader"
 	echo "github.com/UWNetworksLab/adn-controller/grpc/pb"
 	"google.golang.org/grpc"
 )
 
 type server struct {
 	echo.UnimplementedEchoServiceServer
+}
+
+type InterceptInit interface {
+	ServerInterceptors() []grpc.UnaryServerInterceptor
 }
 
 func (s *server) Echo(ctx context.Context, x *echo.Msg) (*echo.Msg, error) {
@@ -35,14 +36,11 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	// nullOpts := []null.CallOption{null.WithMessage("Null"),}
-	// aclOpts := []acl.CallOption{acl.WithContent("server"),}
+	interceptInit := interceptorloader.LoadInterceptors("/echoserver/interceptors/interceptors.so")
 
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			mutate.MutateServer(),
-		// null.NullServer(nullOpts...),
-		// acl.ACLServer(aclOpts...),
+			interceptInit.ServerInterceptors()...,
 		),
 	)
 	fmt.Printf("Starting server pod at port 9000\n")

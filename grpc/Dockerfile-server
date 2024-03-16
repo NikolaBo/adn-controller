@@ -6,6 +6,7 @@ COPY . ./
 
 
 RUN go mod download
+RUN go build -C /echoserver/interceptors/ -buildmode=plugin .
 RUN go build -o /server server.go
 
 EXPOSE 9000

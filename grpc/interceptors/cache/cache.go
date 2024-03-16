@@ -1,4 +1,4 @@
-package main
+package cache
 
 import (
 	"log"
@@ -10,9 +10,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-type interceptInit struct{}
-
-func (interceptInit) CacheClient() grpc.UnaryClientInterceptor {
+func CacheClient() grpc.UnaryClientInterceptor {
 	var request_bodies sync.Map
 
 	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
@@ -35,12 +33,13 @@ func (interceptInit) CacheClient() grpc.UnaryClientInterceptor {
 		}
 
 		err := invoker(ctx, method, req, reply, cc, opts...)
-		responseBody := reply.(*echo.Msg).GetBody()
-		log.Printf("Inserting request to cache. Body : %s\n", responseBody)
-		request_bodies.Store(m.GetBody(), responseBody)
+
+		if err == nil {
+			responseBody := reply.(*echo.Msg).GetBody()
+			log.Printf("Inserting request to cache. Body : %s\n", responseBody)
+			request_bodies.Store(m.GetBody(), responseBody)
+		}
 
 		return err
 	}
 }
-
-var InterceptInit interceptInit
