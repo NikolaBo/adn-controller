@@ -15,7 +15,7 @@ import (
 
 func initHandler() (func(writer http.ResponseWriter, request *http.Request), func()) {
 
-	interceptInit := interceptorloader.LoadInterceptors("/echofrontend/interceptors/interceptors.so")
+	interceptInit := interceptorloader.LoadInterceptors("/echofrontend/severalinterceptorsplugin/severalinterceptorsplugin.so")
 
 	conn, err := grpc.Dial(
 		"server:9000",

@@ -1,4 +1,4 @@
-From golang:1.22.1
+FROM golang:1.22.1
 
 WORKDIR /echoserver
 
@@ -6,8 +6,8 @@ COPY . ./
 
 
 RUN go mod download
-RUN go build -C /echoserver/interceptors/ -buildmode=plugin .
-RUN go build -o /server server.go
+RUN go build -C /echoserver/severalinterceptorsplugin/ -buildmode=plugin .
+RUN go build -o /server ./server
 
 EXPOSE 9000
 

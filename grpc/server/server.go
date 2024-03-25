@@ -36,7 +36,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	interceptInit := interceptorloader.LoadInterceptors("/echoserver/interceptors/interceptors.so")
+	interceptInit := interceptorloader.LoadInterceptors("/echoserver/severalinterceptorsplugin/severalinterceptorsplugin.so")
 
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(

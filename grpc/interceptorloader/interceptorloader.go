@@ -1,6 +1,7 @@
 package interceptorloader
 
 import (
+	"fmt"
 	"plugin"
 
 	"google.golang.org/grpc"
@@ -12,8 +13,10 @@ type InterceptInit interface {
 }
 
 func LoadInterceptors(interceptorPluginPath string) InterceptInit {
+	// TODO: return err instead of panicking
 	interceptorPlugin, err := plugin.Open(interceptorPluginPath)
 	if err != nil {
+		fmt.Printf("loading error: %v\n", err)
 		panic("error loading interceptor plugin so")
 	}
 

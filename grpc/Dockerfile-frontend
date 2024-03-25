@@ -1,4 +1,4 @@
-From golang:1.22.1
+FROM golang:1.22.1
 
 WORKDIR /echofrontend
 
@@ -6,8 +6,8 @@ COPY . ./
 
 
 RUN go mod download
-RUN go build -C /echofrontend/interceptors/ -buildmode=plugin .
-RUN go build -o /frontend frontend.go
+RUN go build -C /echofrontend/severalinterceptorsplugin/ -buildmode=plugin  .
+RUN go build -o /frontend ./frontend
 
 EXPOSE 8080
 
